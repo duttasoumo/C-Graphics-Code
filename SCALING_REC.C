@@ -1,0 +1,244 @@
+/*circle_c.c: Write a program to implement scaling
+transformation on a triangle*/
+#include<stdio.h>
+#include<graphics.h>
+int c,bgcolor;
+int x1,y1,x2,y2,x3,y3,x4,y4;
+void draw_xy();
+void plot_xy(int x[],int y[],int xc,int yc,int n);
+void line_draw(int x1,int y1,int x2,int y2);
+int bresenham(int x1,int y1,int x2,int y2,int x[],int y[]);
+int sign(int x);
+int round1(float x);
+void plot_line(int x[],int y[],int n);//n=no of points , c=color code
+void draw_rec(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4);
+void scaling(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4,float sx,float sy);
+void main()
+{
+float sx,sy;
+clrscr();
+printf("\nEnter x co-ordinate of Vertex A:");
+scanf("%d",&x1);
+printf("\nEnter y co-ordinate of Vertex A:");
+scanf("%d",&y1);
+printf("\nEnter x co-ordinate of Vertex B:");
+scanf("%d",&x2);
+printf("\nEnter y co-ordinate of Vertex B:");
+scanf("%d",&y2);
+printf("\nEnter x co-ordinate of Vertex C:");
+scanf("%d",&x3);
+printf("\nEnter y co-ordinate of Vertex C:");
+scanf("%d",&y3);
+printf("\nEnter x co-ordinate of Vertex D:");
+scanf("%d",&x4);
+printf("\nEnter y co-ordinate of Vertex D:");
+scanf("%d",&y4);
+printf("Enter scale factor along x-axis:");
+scanf("%f",&sx);
+printf("Enter scale factor along y-axis:");
+scanf("%f",&sy);
+printf("Enter background color code=");
+scanf("%d",&bgcolor);
+printf("\nEnter color code of lines(1-14):");
+scanf("%d",&c);
+draw_xy();
+scaling(x1,y1,x2,y2,x3,y3,x4,y4,sx,sy);
+getch();
+closegraph();
+}
+void draw_rec(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4)
+{
+line_draw(x1,y1,x2,y2);
+line_draw(x2,y2,x3,y3);
+line_draw(x3,y3,x4,y4);
+line_draw(x4,y4,x1,y1);
+}
+void scaling(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4,float sx,float sy)
+{
+float obj[3][4],obj1[3][4];
+float sca[3][3];
+int xm1,ym1,xm2,ym2,xm3,ym3,xm4,ym4;
+int i,j,k;
+char a[80];
+/*to construct scaling matrix*/
+	for(i=0;i<3;i++)
+
+		for(j=0;j<3;j++)
+		sca[i][j]=0;
+	sca[0][0]=sx;
+	sca[1][1]=sy;
+	sca[2][2]=1;
+	/*to construct object matrix*/
+	obj[0][0]=x1;
+	obj[0][1]=x2;
+	obj[0][2]=x3;
+	obj[0][3]=x4;
+	obj[1][0]=y1;
+	obj[1][1]=y2;
+	obj[1][2]=y3;
+	obj[1][3]=y4;
+	obj[2][0]=1;
+	obj[2][1]=1;
+	obj[2][2]=1;
+	obj[2][3]=1;
+	/*to get co-ordinate of transformed rectangle*/
+		for(i=0;i<3;i++)
+			for(j=0;j<4;j++)
+			{
+			obj1[i][j]=0;
+				for(k=0;k<3;k++)
+				obj1[i][j]=obj1[i][j]+sca[i][k]*obj[k][j];
+			}
+	xm1=(int)obj1[0][0];
+	xm2=(int)obj1[0][1];
+	xm3=(int)obj1[0][2];
+	xm4=(int)obj1[0][3];
+	ym1=(int)obj1[1][0];
+	ym2=(int)obj1[1][1];
+	ym3=(int)obj1[1][2];
+	ym4=(int)obj1[1][3];
+	/*to draw initial object*/
+	draw_rec(x1,y1,x2,y2,x3,y3,x4,y4);
+	sprintf(a,"A(%d %d)",x1,y1);
+	outtextxy(325+x1,245-y1,a);
+	sprintf(a,"B(%d %d)",x2,y2);
+	outtextxy(325+x2,245-y2,a);
+	sprintf(a,"C(%d %d)",x3,y3);
+	outtextxy(325+x3,245-y3,a);
+	sprintf(a,"D(%d %d)",x4,y4);
+	outtextxy(325+x4,245-y4,a);
+	outtextxy(360+x4,260-y4,"Before scaling");
+	/*to draw modified object*/
+	draw_rec(xm1,ym1,xm2,ym2,xm3,ym3,xm4,ym4);
+	sprintf(a,"A'(%d %d)",xm1,ym1);
+	outtextxy(325+xm1,245-ym1,a);
+	sprintf(a,"B'(%d %d)",xm2,ym2);
+	outtextxy(325+xm2,245-ym2,a);
+	sprintf(a,"C'(%d %d)",xm3,ym3);
+	outtextxy(325+xm3,245-ym3,a);
+	sprintf(a,"D(%d %d)",xm4,ym4);
+	outtextxy(325+xm4,245-ym4,a);
+	outtextxy(490+xm4,260-ym4,"After scaling");
+	}
+
+/* void draw_xy() : Function to display x-axis, y-axis */
+void draw_xy()
+{
+int i,c,c1;
+int gd=DETECT,gm;
+initgraph(&gd,&gm,"C://turboc3//BGI");
+c=15;
+/* To draw x-axis */
+	for(i=0;i<=639;i++)
+	{
+	putpixel(i,240,c);
+	delay(2);
+	}
+/* To draw y-axis */
+	for(i=0;i<=479;i++)
+	{
+	putpixel(320,i,c);
+	delay(2);
+	}
+setbkcolor(bgcolor);
+outtextxy(620,245,"+X");
+outtextxy(10,245,"-X");
+outtextxy(330,20,"+Y");
+outtextxy(330,460,"-Y");
+outtextxy(330,245,"O");
+outtextxy(20,25,"Name:Anwesha Chakraborty Roll:581");
+/*outtextxy(15,30,"Roll:581");*/
+}
+
+/* void plot_xy(int x[],int y[],int xc,int yc,int n): Function to draw circle*/
+void plot_xy(int x[],int y[],int xc,int yc,int n)
+{
+int i;
+char a[80];
+	for(i=1;i<=n;i++)
+	{
+	putpixel(x[i]+320+xc,240-y[i]-yc,c);
+	delay(10);
+	}
+sprintf(a,"C(%d,%d)",xc,yc);
+outtextxy(xc+320,240-yc,a);
+}
+
+	/*void line_draw(int x1,int y1,int x2,int y2) : Function to draw
+	aline from (x1,y1) to (x2,y2)*/
+	void line_draw(int x1,int y1,int x2,int y2)
+	{
+	int x[700],y[700];
+	int n;
+	n=bresenham(x1,y1,x2,y2,x,y);
+	plot_line(x,y,n);
+	}
+
+
+       //int bresenham(int x1,int y1,int x2,int y2,int x[],int y[]):
+       //Function to generate all points using Generalized Bresenham algorithm
+
+	int bresenham(int x1,int y1,int x2,int y2,int x[],int y[])
+	{
+	int delx,dely,s1,s2;
+	int interchange,temp;
+	int xx,yy;
+	int e,i;
+	delx=abs(x2-x1);
+	dely=abs(y2-y1);
+	s1=sign(x2-x1);
+	s2=sign(y2-y1);
+	/*To Calculate value of interchange*/
+		if(dely>delx)
+		{temp=dely;
+		dely=delx;
+		delx=temp;
+		interchange=1;
+		}
+		else
+		interchange=0;
+	xx=x1;
+	yy=y1;
+	e=2*dely-delx;
+	//To generate all points
+		for(i=0;i<=delx;i++)
+		{
+		x[i]=xx;
+		y[i]=yy;
+			while(e>=0)
+			{
+				if(interchange==1)
+				xx=xx+s1;
+				else
+				yy=yy+s2;
+			e=e-2*delx;
+			}
+			if(interchange==1)
+			yy=yy+s2;
+			else
+			xx=xx+s1;
+		e=e+2*dely;
+		}
+	return delx;
+	}
+
+	void plot_line(int x[],int y[],int n)
+	{
+	int i;
+	for(i=0;i<=n;i++)
+	{
+	putpixel(320+x[i],240-y[i],c);
+	delay(10);
+	}
+	}
+
+	//int sign(int x) : Function to return sign of x
+	int sign(int x)
+	{
+		if(x>0)
+		return 1;
+		else if(x==0)
+		return 0;
+		else
+		return -1;
+	}
